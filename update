@@ -13,6 +13,14 @@ cd ../frontend
 npm install
 rm -rf build
 npm run build
+cat > /www/wwwroot/teste4/frontend/build/config.json << 'EOF'
+{
+    "BACKEND_HOST": "teste.ricardogomeslopes.eti.br",
+    "FRONTEND_HOST": "teste.ricardogomeslopes.eti.br",
+    "BACKEND_PATH": "/backend",
+    "EMAIL_ADDRESS": "admin@ticketz.host"
+}
+EOF
 
 confirmar() {
     while true; do
