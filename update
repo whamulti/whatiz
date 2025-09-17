@@ -13,7 +13,7 @@ cd ../frontend
 npm install
 rm -rf build
 npm run build
-cat > /www/wwwroot/teste4/frontend/build/config.json << 'EOF'
+cat > /www/wwwroot/teste/frontend/build/config.json << 'EOF'
 {
     "BACKEND_HOST": "teste.ricardogomeslopes.eti.br",
     "FRONTEND_HOST": "teste.ricardogomeslopes.eti.br",
