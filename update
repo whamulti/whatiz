@@ -28,12 +28,12 @@ confirmar() {
         if [ "$resposta" == "Sim" ]; then
             break
         else
-            echo "Reinicie o PM2 do Backend e Frontend e volte"
+            echo "Reinicie o PM2 e volte"
         fi
     done
 }
 
 # Confirmação após finalizar
-confirmar "Reiniciou o PM2 do Backend e Frontend?"
+confirmar "Reiniciou o PM2?"
 
 echo "Atualização finalizada. Aproveite!"
