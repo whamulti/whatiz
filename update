@@ -1,0 +1,31 @@
+#!/bin/bash
+echo "Atualizando Whamulti, por favor aguarde."
+
+git reset --hard
+git pull
+cd backend
+npm install
+rm -rf dist
+npm run build
+npx sequelize db:migrate
+npx sequelize db:seed
+cd ../frontend
+npm install
+rm -rf build
+npm run build
+
+confirmar() {
+    while true; do
+        read -p "$1 (Digite exatamente 'Sim' para continuar): " resposta
+        if [ "$resposta" == "Sim" ]; then
+            break
+        else
+            echo "Reinicie o PM2 do Backend e Frontend e volte"
+        fi
+    done
+}
+
+# Confirmação após finalizar
+confirmar "Reiniciou o PM2 do Backend e Frontend?"
+
+echo "Atualização finalizada. Aproveite!"
