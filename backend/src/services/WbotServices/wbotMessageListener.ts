@@ -97,7 +97,38 @@ const msgLocation = (
   longitude: number
 ) => {
   if (image) {
-    const b64 = Buffer.from(image).toString("base64");
+    // Normaliza diferentes tipos de entrada em um Buffer seguro
+    let bufferImage: Buffer;
+
+    try {
+      if (Buffer.isBuffer(image as any)) {
+        bufferImage = image as Buffer;
+      } else if (image instanceof ArrayBuffer) {
+        bufferImage = Buffer.from(new Uint8Array(image));
+      } else if (ArrayBuffer.isView(image as any)) {
+        // cobre Uint8Array, DataView, etc.
+        bufferImage = Buffer.from((image as any) as Uint8Array);
+      } else if (typeof (image as any).valueOf === "function") {
+        const val = (image as any).valueOf();
+        if (val instanceof ArrayBuffer) {
+          bufferImage = Buffer.from(new Uint8Array(val));
+        } else if (ArrayBuffer.isView(val as any)) {
+          bufferImage = Buffer.from(val as any);
+        } else {
+          // fallback para string coercion
+          bufferImage = Buffer.from(String(val));
+        }
+      } else {
+        // fallback geral
+        bufferImage = Buffer.from(String(image));
+      }
+    } catch (e) {
+      // Se algo falhar, logamos e retornamos string vazia
+      logger.error({ err: (e as Error)?.message ?? e } as any, "msgLocation: failed to normalize image");
+      return "";
+    }
+
+    const b64 = bufferImage.toString("base64");
 
     const data = `data:image/png;base64, ${b64} | https://maps.google.com/maps?q=${latitude}%2C${longitude}&z=17&hl=pt-BR|${latitude}, ${longitude} `;
     return data;
@@ -189,7 +220,7 @@ export const getBodyMessage = (msg: proto.IMessage): string | null => {
     }
     return body;
   } catch (error) {
-    logger.error({ error, msg }, `getBodyMessage: error: ${error?.message}`);
+    logger.error({ error, msg } as any, `getBodyMessage: error: ${(error as any)?.message}`);
     return null;
   }
 };
@@ -1149,7 +1180,7 @@ export const startQueue = async (
       const sentMediaMessage = await wbot.sendMessage(getJidOf(ticket), {
         ...optionsMsg
       });
-      await verifyMediaMessage(sentMediaMessage, ticket, contact);
+      await verifyMediaMessage(sentMediaMessage, ticket, ticket.contact);
     }
     sendMenu(wbot, ticket, queue, sendBackToMain);
   }
@@ -1257,7 +1288,7 @@ const handleRating = async (
           rated: true
         });
       },
-      e => logger.error({ e }, "error sending message")
+      e => logger.error({ e } as any, "error sending message")
     );
 };
 
@@ -1863,7 +1894,7 @@ const handleMessage = async (
   } catch (err) {
     console.log(err);
     Sentry.captureException(err);
-    logger.error(`Error handling whatsapp message: Err: ${err}`);
+    logger.error({ err } as any, `Error handling whatsapp message: Err: ${(err as any)?.message}`);
   }
 };
 
@@ -1896,7 +1927,7 @@ const handleMsgAck = async (msg: WAMessage, ack: number) => {
     );
   } catch (err) {
     Sentry.captureException(err);
-    logger.error(`Error handling message ack. Err: ${err}`);
+    logger.error({ err } as any, `Error handling message ack. Err: ${(err as any)?.message}`);
   }
 };
 
@@ -2002,7 +2033,7 @@ const wbotMessageListener = async (
     });
   } catch (error) {
     Sentry.captureException(error);
-    logger.error(`Error handling wbot message listener. Err: ${error}`);
+    logger.error({ error } as any, `Error handling wbot message listener. Err: ${(error as any)?.message}`);
   }
 };
 
